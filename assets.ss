@@ -7,7 +7,8 @@
   :std/sugar :std/format :std/misc/string :std/srfi/13
   :clan/decimal
   :clan/poo/object
-  ./assembly ./types ./ethereum ./abi ./evm-runtime)
+  ./assembly ./types ./ethereum ./abi ./evm-runtime
+  ./block-ctx)
 
 (.def (TokenAmount @ [] .decimals .validate .symbol)
   .denominator: (expt 10 .decimals)
@@ -35,6 +36,34 @@
   .symbol: 'ETH
   .decimals: 18
   .Address: Address
+  .participant:setup: (lambda () (error 'TODO))
+  .consensus:setup: (lambda () (error 'TODO))
+  .participant:add-to-deposit:
+  (lambda (block-ctx participant amount)
+    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+  .participant:expect-deposited:
+  (lambda (block-ctx participant amount)
+    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+  .consensus:expect-deposited:
+  (lambda (amount)
+    [amount &deposit!])
+  .participant:commit-deposits:
+  (lambda (block-ctx)
+    (.@ block-ctx deposits))
+  .consensus:commit-deposits: (lambda () (error 'TODO))
+
+  .participant:withdraw:
+  (lambda (block-ctx address price)
+    (.call BlockCtx .add-to-withdraw block-ctx address price))
+  .consensus:withdraw:
+  (lambda (participant amount)
+    [amount participant &withdraw!])
+  ;; TODO: commit withdrawls?
+  ;; TODO: in the future, only use &withdraw! in the commit
+  ;;       at the end of the transaction,
+  ;;       for the accumulated withdrawls before then,
+  ;;       for each of the participants
+
   .deposit!: ;; (EVMThunk <-) <- (EVMThunk .Address <-) (EVMThunk @ <-) (EVMThunk <- Bool)
   (lambda (sender amount _require! _tmp@)
     (&begin

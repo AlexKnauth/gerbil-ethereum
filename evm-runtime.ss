@@ -176,7 +176,8 @@
   (brk 32 #|3|#) ;; The free memory pointer.
   (calldatapointer 32 #|3|#) ;; Pointer within CALLDATA to yet unread published information.
   (calldatanew 32 #|3|#) ;; Pointer to new information within CALLDATA (everything before was seen).
-  (deposit 32 #|12|#)) ;; Required deposit so far.
+  (deposit 32 #|12|#) ;; Required deposit so far for Ether asset.
+  (deposit_erc20 32)) ;; Required deposit so far for ERC20 asset.
 
 ;; Second, the frame state as merkleized. These are the fields present in all frames:
 (define-consecutive-addresses this-ctx frame@ params-start@
@@ -314,6 +315,9 @@
 (def &check-sufficient-deposit
   (&begin deposit CALLVALUE LT &require-not!)) ;; [8B, 25G]
 
+(def &check-sufficient-deposit_erc20
+  (&begin deposit_erc20 CALLVALUE LT &require-not!)) ;; [8B, 25G]
+
 ;; TODO: *in the future*, have a variant of contracts that allows for posting markets,
 ;; whereby whoever posts the message to the blockchain might not be the participant,
 ;; and instead, the participant signs the in-contract message.
@@ -367,6 +371,11 @@
   ;; Scheme pseudocode: (lambda (amount) (increment! deposit amount))
   ;; TODO: can we statically prove it's always within range and make the &safe-add an ADD ???
   (&begin deposit &safe-add deposit-set!)) ;; [14B, 40G]
+
+(def &deposit_erc20!
+  ;; Scheme pseudocode: (lambda (amount) (increment! deposit_erc20 amount))
+  ;; TODO: can we statically prove it's always within range and make the &safe-add an ADD ???
+  (&begin deposit_erc20 &safe-add deposit_erc20-set!)) ;; [14B, 40G]
 
 ;; TESTING STATUS: Wholly untested.
 (def &send-ethers!

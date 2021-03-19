@@ -40,21 +40,23 @@
   .consensus:setup: (lambda () (error 'TODO))
   .participant:add-to-deposit:
   (lambda (block-ctx participant amount)
-    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+    (.call BlockCtx .add-to-deposit block-ctx participant Ether amount))
   .participant:expect-deposited:
   (lambda (block-ctx participant amount)
-    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+    (.call BlockCtx .add-to-deposit block-ctx participant Ether amount))
   .consensus:expect-deposited:
   (lambda (amount)
     [amount &deposit!])
-  .participant:commit-deposits:
+  .participant:commit-deposits-code:
+  (lambda (block-ctx) [])
+  .participant:commit-deposits-value:
   (lambda (block-ctx)
-    (.@ block-ctx deposits))
+    (assq-ref (.@ block-ctx deposits) Ether))
   .consensus:commit-deposits: (lambda () (error 'TODO))
 
   .participant:withdraw:
   (lambda (block-ctx address price)
-    (.call BlockCtx .add-to-withdraw block-ctx address price))
+    (.call BlockCtx .add-to-withdraw block-ctx address Ether price))
   .consensus:withdraw:
   (lambda (participant amount)
     [amount participant &withdraw!])
@@ -126,4 +128,21 @@
      recipient (&mstoreat (+ tmp@ 4))
      amount (&mstoreat (+ tmp@ 36))
      32 tmp@ 68 DUP2 0 .contract-address GAS CALL
-     (&mloadat tmp@) AND require!))) ;; check that both the was successful and its boolean result true
+     (&mloadat tmp@) AND require!)) ;; check that both the was successful and its boolean result true
+
+  .participant:add-to-deposit:
+  (lambda (block-ctx participant amount)
+    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+  .participant:expect-deposited:
+  (lambda (block-ctx participant amount)
+    (.call BlockCtx .add-to-deposit block-ctx participant amount))
+  .consensus:expect-deposited:
+  (lambda (amount)
+    [amount &deposit!])
+  .participant:commit-deposits-code:
+  (lambda (block-ctx) [])
+  .participant:commit-deposits-value:
+  (lambda (block-ctx)
+    (.@ block-ctx deposits))
+  .consensus:commit-deposits: (lambda () (error 'TODO))
+  ())

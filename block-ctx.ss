@@ -16,23 +16,26 @@
    ;; This would make both static verification and contract generation much simpler.
    ;; TODO: One the other hand, support multiple asset classes in a same transaction,
    ;; there again in a per-invocation static finite set.
-   (λ (self address amount)
+   (λ (self address asset amount)
      ;; TODO: make sure we check that the amounts are balanced at the end of the transaction
      (modify! (.@ self withdrawals)
-              (cut assq-update <> address (cut + <> amount) 0)))
+              (cut assq-update <> asset
+                   (cut assq-update <> address (cut + <> amount) 0)
+                   [])))
    .add-to-deposit: ;; <- @ Nat
-   (λ (self address amount)
-     (modify! (.@ self deposits) (cut + <> amount)))
+   (λ (self address asset amount)
+     (modify! (.@ self deposits)
+              (cut assq-update <> asset (cut + <> amount) 0)))
    })
 
 (define-type PassiveBlockCtx
   (.+
     (Record
-      deposits: [Nat]
-      withdrawals: [(List Any)] ;; Alist Nat <- Address
+      deposits: [(List Any)] ;; Alist Nat <- Asset
+      withdrawals: [(List Any)] ;; Alist (Alist Nat <- Address) <- Asset
       inbox: [Any]) ;; BytesInputPort
     {(:: @ BlockCtx)
-    .make: (lambda (in-bytes) {deposits: 0
+    .make: (lambda (in-bytes) {deposits: []
                                withdrawals: []
                                inbox: (open-input-u8vector in-bytes)})
     .expect-published: ;; : t <- Symbol t:Type
@@ -43,11 +46,11 @@
 (define-type ActiveBlockCtx
   (.+
     (Record
-      deposits: [Nat]
-      withdrawals: [(List Any)] ;; Alist Nat <- Address
+      deposits: [(List Any)] ;; Alist Nat <- Asset
+      withdrawals: [(List Any)] ;; Alist (Alist Nat <- Address) <- Asset
       outbox: [Any]) ;; BytesOutputPort
     {(:: @ BlockCtx)
-    .make: (lambda () {deposits: 0
+    .make: (lambda () {deposits: []
                        withdrawals: []
                        outbox: (open-output-u8vector)})
     .add-to-published: ;; <- @ Symbol t:Type t

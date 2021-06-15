@@ -193,9 +193,14 @@
     ;; (test-case "&check-sufficient-deposit when deposit is GT"
     ;; (evm-test-failure [] (&begin &check-sufficient-deposit)))
 
-    (test-case "&deposit!"
+    (test-case "&add-deposit0!"
       (evm-test [[UInt256 . 300]]
-                (&begin &deposit! deposit &deposit! deposit)
+                (&begin &add-deposit0! deposit0 &add-deposit0! deposit0)
+                [[UInt256 . 600]]))
+
+    (test-case "&add-withdraw0!"
+      (evm-test [[UInt256 . 300]]
+                (&begin &add-withdraw0! withdraw0 &add-withdraw0! withdraw0)
                 [[UInt256 . 600]]))
 
     (test-case "&brk-cons when n-bytes is 32"
@@ -259,8 +264,8 @@
 
     (test-case "&marshal UInt8"
       (evm-test [] (&begin brk DUP1 DUP1 (&marshal UInt8 7))
-                [[UInt8 . 1]]))              
-                
+                [[UInt8 . 1]]))
+
     (test-case "&marshal UInt8"
       (evm-test [] (&begin brk DUP1 DUP1 (&marshal UInt16 7))
                 [[UInt16 . 2]]))))

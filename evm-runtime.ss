@@ -200,12 +200,6 @@
   (balance0 32) ;; Balance for this interaction. We store this as a variable, rather than
                 ;; using the BALANCE instruction, so that we can multiplex multiple
                 ;; interactions onto one contract.
-  (balance1 32) ;; Balance for this interaction. We store this as a variable, rather than
-                ;; using the BALANCE instruction, so that we can multiplex multiple
-                ;; interactions onto one contract.
-  (balance2 32) ;; Balance for this interaction. We store this as a variable, rather than
-                ;; using the BALANCE instruction, so that we can multiplex multiple
-                ;; interactions onto one contract.
   (timer-start Block) ;; Block at which the timer was started
   #;(challenged-participant Offset)) ;; TODO? offset of the parameter containing the participant challenged to post before timeout
 
@@ -416,8 +410,6 @@
 
 ;; (EVMThunk <- Amount)
 (def &sub-balance0! (&begin balance0 &safe-sub balance0-set!))
-(def &sub-balance1! (&begin balance1 &safe-sub balance1-set!))
-(def &sub-balance2! (&begin balance2 &safe-sub balance2-set!))
 
 ;; (EVMThunk <- Address Amount)
 ;; TESTING STATUS: Wholly untested.
